@@ -3,7 +3,7 @@ services:
   plantuml-server:
     image: plantuml/plantuml-server
     expose:
-      - "8080"
+      - "20200"
     networks:
       - drawionet
     volumes:
@@ -11,7 +11,7 @@ services:
   image-export:
     image: jgraph/export-server
     expose:
-      - "8000"
+      - "20201"
     networks:
       - drawionet
     volumes:
@@ -20,7 +20,7 @@ services:
     image: jgraph/drawio
     ports:
       - "8443:8443"
-      - "8080:8080"
+      - "20202:8080"
     depends_on:
       - plantuml-server
       - image-export
@@ -37,8 +37,15 @@ services:
       - ./config/msgraph_client_redirect_uri:/usr/local/tomcat/webapps/draw/WEB-INF/msgraph_client_redirect_uri
       - ./config/msgraph_client_secret:/usr/local/tomcat/webapps/draw/WEB-INF/msgraph_client_secret
     environment:
-      - PLANTUML_URL=http://plantuml-server:8080/
-      - EXPORT_URL=http://image-export:8000/
-      
+      - PLANTUML_URL=https://draw.stackdb.info:20200/
+      - EXPORT_URL=https://draw.stackdb.info:20201/
+  lighttpd:
+    image: sebp/lighttpd
+    volumes:
+      - ./plugins:/var/www/localhost/htdocs
+      # - <config-directory>:/etc/lighttpd
+    ports:
+      - "20203:80"
+    tty: true
 networks:
   drawionet:

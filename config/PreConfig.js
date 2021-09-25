@@ -8,12 +8,13 @@
   } catch (e) {} // ignore
 })();
 // test
-window.DRAWIO_BASE_URL = 'http://localhost:8080';
+window.DRAWIO_BASE_URL = 'https://draw.stackdb.info/';
 window.DRAWIO_VIEWER_URL = '';
 window.DRAW_MATH_URL = 'math';
 window.DRAWIO_CONFIG = {
 	plugins: [
-		"http://localhost:8090/hello.js"
+		"https://draw.stackdb.info/plugins/hello.js",
+		"https://draw.stackdb.info/plugins/stackdb.js"
 	]
 };
 urlParams['sync'] = 'manual'; //Disable Real-Time
