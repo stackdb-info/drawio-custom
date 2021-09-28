@@ -18,6 +18,7 @@ services:
       - ./fonts:/usr/share/fonts/drawio
   drawio:
     image: jgraph/drawio
+    hostname: drawio
     ports:
       - "8443:8443"
       - "20202:8080"
@@ -28,7 +29,7 @@ services:
       - drawionet
     volumes:
       - ./config/PostConfig.js:/usr/local/tomcat/webapps/draw/js/PostConfig.js
-      - ./config/PreConfig.js:/usr/local/tomcat/webapps/draw/js/PreConfig.js:ro
+      - ./config${CONFIG_PATH_SUBDIRECTORY}/PreConfig.js:/usr/local/tomcat/webapps/draw/js/PreConfig.js:ro
       - ./config/cloud_convert_api_key:/usr/local/tomcat/webapps/draw/WEB-INF/cloud_convert_api_key
       - ./config/google_client_id:/usr/local/tomcat/webapps/draw/WEB-INF/google_client_id
       - ./config/google_client_redirect_uri:/usr/local/tomcat/webapps/draw/WEB-INF/google_client_redirect_uri
@@ -37,15 +38,11 @@ services:
       - ./config/msgraph_client_redirect_uri:/usr/local/tomcat/webapps/draw/WEB-INF/msgraph_client_redirect_uri
       - ./config/msgraph_client_secret:/usr/local/tomcat/webapps/draw/WEB-INF/msgraph_client_secret
     environment:
-      - PLANTUML_URL=https://draw.stackdb.info:20200/
-      - EXPORT_URL=https://draw.stackdb.info:20201/
-  lighttpd:
-    image: sebp/lighttpd
-    volumes:
-      - ./plugins:/var/www/localhost/htdocs
-      # - <config-directory>:/etc/lighttpd
-    ports:
-      - "20203:80"
-    tty: true
+      - PLANTUML_URL=${PLANTUML_URL}
+      - EXPORT_URL=${EXPORT_URL}
+    networks:
+      drawionet:
+        aliases:
+          - drawio
 networks:
   drawionet:
