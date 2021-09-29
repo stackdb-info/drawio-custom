@@ -11,12 +11,7 @@
 window.DRAWIO_BASE_URL = 'https://draw.stackdb.info/';
 window.DRAWIO_VIEWER_URL = '';
 window.DRAW_MATH_URL = 'math';
-window.DRAWIO_CONFIG = {
-	plugins: [
-		"https://draw.stackdb.info/plugins/hello.js",
-		"https://draw.stackdb.info/plugins/stackdb.js"
-	]
-};
+window.DRAWIO_CONFIG = { plugins: [ "/plugins/stackdb.js" ] };
 urlParams['sync'] = 'manual'; //Disable Real-Time
 urlParams['db'] = '0'; //dropbox
 urlParams['gh'] = '0'; //github

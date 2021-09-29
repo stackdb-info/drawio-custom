@@ -37,6 +37,7 @@ services:
       - ./config/msgraph_client_id:/usr/local/tomcat/webapps/draw/WEB-INF/msgraph_client_id
       - ./config/msgraph_client_redirect_uri:/usr/local/tomcat/webapps/draw/WEB-INF/msgraph_client_redirect_uri
       - ./config/msgraph_client_secret:/usr/local/tomcat/webapps/draw/WEB-INF/msgraph_client_secret
+      - ./plugins/stackdb.js:/usr/local/tomcat/webapps/draw/plugins/stackdb.js:ro
     environment:
       - PLANTUML_URL=${PLANTUML_URL}
       - EXPORT_URL=${EXPORT_URL}
