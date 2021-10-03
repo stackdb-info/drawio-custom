@@ -1,101 +1,79 @@
-Draw.loadPlugin(function(ui) {
+/**
+ * @param {String} HTML representing a single element
+ * @return {Element}
+ * Credit : https://stackoverflow.com/questions/494143/creating-a-new-dom-element-from-an-html-string-using-built-in-dom-methods-or-pro/35385518#35385518
+ */
+function htmlToElement(html) {
+	var template = document.createElement('template');
+	html = html.trim(); // Never return a text node of whitespace as the result
+	template.innerHTML = html;
+	return template.content.firstChild;
+}
 
-		/**
-		 * @param {String} HTML representing a single element
-		 * @return {Element}
-		 * Credit : https://stackoverflow.com/questions/494143/creating-a-new-dom-element-from-an-html-string-using-built-in-dom-methods-or-pro/35385518#35385518
-		 */
-		function htmlToElement(html) {
-			var template = document.createElement('template');
-			html = html.trim(); // Never return a text node of whitespace as the result
-			template.innerHTML = html;
-			return template.content.firstChild;
-		}
-    
-    function getOrCreateButton(ui) {
-        if (ui.stackdbButton == null) {
-			// Button creation
-			ui.stackdbButton = document.createElement('div');
-			ui.stackdbButton.className = 'geBtn';
-			ui.stackdbButton.innerText = 'StackDB'
-			
-			// Style
-			ui.stackdbButton.style.width = '140px';
-			ui.stackdbButton.style.minWidth = '140px';
-			ui.stackdbButton.style.textOverflow = 'ellipsis';
-			ui.stackdbButton.style.overflowX = 'hidden';
-			ui.stackdbButton.style.fontWeight = 'bold';
-			ui.stackdbButton.style.textAlign = 'center';
-			ui.stackdbButton.style.display = 'inline-block';
-			ui.stackdbButton.style.padding = '0 10px 0 10px';
-			ui.stackdbButton.style.marginTop = '-4px';
-			ui.stackdbButton.style.height = '28px';
-			ui.stackdbButton.style.lineHeight = '28px';
-			ui.stackdbButton.style.color = '#235695';
+class StackDB {
 
-			// Events
-			ui.stackdbButton.onclick = function() {
-				let panel = getOrCreatePanel(ui) 
-				if (panel.style.display == 'block') {
-					getOrCreatePanel(ui).style.display = 'none';
-				} else {
-					getOrCreatePanel(ui).style.display = 'block';
-				}
-			}
+	titleEl;
+	panelEl;
+	isPanelOpened = false;
+	ui;
 
-			// Insert in DrawIO ui
-			if (ui.buttonContainer.firstChild != null) {
-				ui.buttonContainer.insertBefore(ui.stackdbButton, ui.buttonContainer.firstChild);
-			}
-			else {
-				ui.buttonContainer.appendChild(ui.stackdbButton);
-			}
-        }
-        return ui.stackdbPanel;
-    }
+	constructor(ui) {
+		this.ui = ui;
+		this.panelEl = htmlToElement(`
+			<div style="display: block;">
+				<div class="geSidebar" style="touch-action: none;">
+				StackDB content !!!
+				</div>
+			</div>
+		`)
+		this.ui.sidebarContainer.prepend(this.panelEl)
+		this.togglePanel() // open panel
+	}
 
-	function getOrCreatePanel(ui) {
-		if (ui.stackdbPanel == null) {
-			// Button creation
-			// ui.stackdbPanel = document.createElement('div');
-			// ui.stackdbPanel.innerText = 'StackDB panel'
-			
-			// Style
-			// ui.stackdbPanel.style.width = '140px';
-			// ui.stackdbPanel.style.height = '440px';
-			// ui.stackdbPanel.style.textOverflow = 'ellipsis';
-			// ui.stackdbPanel.style.overflowX = 'hidden';
-			// ui.stackdbPanel.style.fontWeight = 'bold';
-			// ui.stackdbPanel.style.textAlign = 'center';
-			// ui.stackdbPanel.style.display = 'inline-block';
-			// ui.stackdbPanel.style.padding = '0 10px 0 10px';
-			// ui.stackdbPanel.style.marginTop = '-4px';
-			// ui.stackdbPanel.style.height = '28px';
-			// ui.stackdbPanel.style.lineHeight = '28px';
-			// ui.stackdbPanel.style.color = '#235695';
-			// ui.stackdbPanel.style.position = 'fixed';
-			// ui.stackdbPanel.style.backgroundColor = 'white';
 
-			// Position
-			// ui.stackdbPanel.style.top = '0px';
-			// ui.stackdbPanel.style.left = '0px';
-			// ui.stackdbPanel.style.display = 'none';
-			// ui.stackdbPanel.style.zIndex = "1000";
-
-			ui.stackdbTrigger = htmlToElement(`
-				<a 
-					title="StackDB" 
-					class="geTitle" 
-					style="display: block;">
-					StackDB
-				</a>
-			`)
-
-			ui.sidebarContainer.appendChild(ui.stackdbTrigger)
+	togglePanel() {
+		if (this.titleEl) this.ui.sidebarContainer.removeChild(this.titleEl)
+		if (this.isPanelOpened) {
+			this.titleEl = this.closedTitleHTML()
+			this.ui.sidebarContainer.prepend(this.titleEl)
+			this.panelEl.style.display = "none";
+			this.isPanelOpened = false;
+		} else {
+			this.titleEl = this.openedTitleHTML()
+			this.ui.sidebarContainer.prepend(this.titleEl)
+			this.panelEl.style.display = "block";
+			this.isPanelOpened = true;
 		}
 	}
 
-    let button = getOrCreateButton(ui)
-	let panel = getOrCreatePanel(ui)
+	closedTitleHTML() {
+		let el = htmlToElement(`
+			<a 
+				title="StackDB" 
+				class="geTitle"
+				style='background-image: url("data:image/gif;base64,R0lGODlhDQANAIABAJmZmf///yH/C1hNUCBEYXRhWE1QPD94cGFja2V0IGJlZ2luPSLvu78iIGlkPSJXNU0wTXBDZWhpSHpyZVN6TlRjemtjOWQiPz4gPHg6eG1wbWV0YSB4bWxuczp4PSJhZG9iZTpuczptZXRhLyIgeDp4bXB0az0iQWRvYmUgWE1QIENvcmUgNS4wLWMwNjAgNjEuMTM0Nzc3LCAyMDEwLzAyLzEyLTE3OjMyOjAwICAgICAgICAiPiA8cmRmOlJERiB4bWxuczpyZGY9Imh0dHA6Ly93d3cudzMub3JnLzE5OTkvMDIvMjItcmRmLXN5bnRheC1ucyMiPiA8cmRmOkRlc2NyaXB0aW9uIHJkZjphYm91dD0iIiB4bWxuczp4bXA9Imh0dHA6Ly9ucy5hZG9iZS5jb20veGFwLzEuMC8iIHhtbG5zOnhtcE1NPSJodHRwOi8vbnMuYWRvYmUuY29tL3hhcC8xLjAvbW0vIiB4bWxuczpzdFJlZj0iaHR0cDovL25zLmFkb2JlLmNvbS94YXAvMS4wL3NUeXBlL1Jlc291cmNlUmVmIyIgeG1wOkNyZWF0b3JUb29sPSJBZG9iZSBQaG90b3Nob3AgQ1M1IE1hY2ludG9zaCIgeG1wTU06SW5zdGFuY2VJRD0ieG1wLmlpZDozNUQyRTJFNjZGNUYxMUU1QjZEOThCNDYxMDQ2MzNCQiIgeG1wTU06RG9jdW1lbnRJRD0ieG1wLmRpZDozNUQyRTJFNzZGNUYxMUU1QjZEOThCNDYxMDQ2MzNCQiI+IDx4bXBNTTpEZXJpdmVkRnJvbSBzdFJlZjppbnN0YW5jZUlEPSJ4bXAuaWlkOjFERjc3MEUxNkY1RjExRTVCNkQ5OEI0NjEwNDYzM0JCIiBzdFJlZjpkb2N1bWVudElEPSJ4bXAuZGlkOjFERjc3MEUyNkY1RjExRTVCNkQ5OEI0NjEwNDYzM0JCIi8+IDwvcmRmOkRlc2NyaXB0aW9uPiA8L3JkZjpSREY+IDwveDp4bXBtZXRhPiA8P3hwYWNrZXQgZW5kPSJyIj8+Af/+/fz7+vn49/b19PPy8fDv7u3s6+rp6Ofm5eTj4uHg397d3Nva2djX1tXU09LR0M/OzczLysnIx8bFxMPCwcC/vr28u7q5uLe2tbSzsrGwr66trKuqqainpqWko6KhoJ+enZybmpmYl5aVlJOSkZCPjo2Mi4qJiIeGhYSDgoGAf359fHt6eXh3dnV0c3JxcG9ubWxramloZ2ZlZGNiYWBfXl1cW1pZWFdWVVRTUlFQT05NTEtKSUhHRkVEQ0JBQD8+PTw7Ojk4NzY1NDMyMTAvLi0sKyopKCcmJSQjIiEgHx4dHBsaGRgXFhUUExIREA8ODQwLCgkIBwYFBAMCAQAAIfkEAQAAAQAsAAAAAA0ADQAAAhSMj6lrwAjcC1GyahV+dcZJgeIIFgA7"); background-repeat: no-repeat; background-position: 0% 50%; display: block;'>
+				StackDB
+			</a>
+		`)
+		el.onclick = () => this.togglePanel()
+		return el
+	}
 
+	openedTitleHTML() {
+		let el = htmlToElement(`
+			<a 
+				title="StackDB" 
+				class="geTitle" 
+				style='background-image: url("data:image/gif;base64,R0lGODlhDQANAIABAJmZmf///yH/C1hNUCBEYXRhWE1QPD94cGFja2V0IGJlZ2luPSLvu78iIGlkPSJXNU0wTXBDZWhpSHpyZVN6TlRjemtjOWQiPz4gPHg6eG1wbWV0YSB4bWxuczp4PSJhZG9iZTpuczptZXRhLyIgeDp4bXB0az0iQWRvYmUgWE1QIENvcmUgNS4wLWMwNjAgNjEuMTM0Nzc3LCAyMDEwLzAyLzEyLTE3OjMyOjAwICAgICAgICAiPiA8cmRmOlJERiB4bWxuczpyZGY9Imh0dHA6Ly93d3cudzMub3JnLzE5OTkvMDIvMjItcmRmLXN5bnRheC1ucyMiPiA8cmRmOkRlc2NyaXB0aW9uIHJkZjphYm91dD0iIiB4bWxuczp4bXA9Imh0dHA6Ly9ucy5hZG9iZS5jb20veGFwLzEuMC8iIHhtbG5zOnhtcE1NPSJodHRwOi8vbnMuYWRvYmUuY29tL3hhcC8xLjAvbW0vIiB4bWxuczpzdFJlZj0iaHR0cDovL25zLmFkb2JlLmNvbS94YXAvMS4wL3NUeXBlL1Jlc291cmNlUmVmIyIgeG1wOkNyZWF0b3JUb29sPSJBZG9iZSBQaG90b3Nob3AgQ1M1IE1hY2ludG9zaCIgeG1wTU06SW5zdGFuY2VJRD0ieG1wLmlpZDoxREY3NzBERjZGNUYxMUU1QjZEOThCNDYxMDQ2MzNCQiIgeG1wTU06RG9jdW1lbnRJRD0ieG1wLmRpZDoxREY3NzBFMDZGNUYxMUU1QjZEOThCNDYxMDQ2MzNCQiI+IDx4bXBNTTpEZXJpdmVkRnJvbSBzdFJlZjppbnN0YW5jZUlEPSJ4bXAuaWlkOjFERjc3MERENkY1RjExRTVCNkQ5OEI0NjEwNDYzM0JCIiBzdFJlZjpkb2N1bWVudElEPSJ4bXAuZGlkOjFERjc3MERFNkY1RjExRTVCNkQ5OEI0NjEwNDYzM0JCIi8+IDwvcmRmOkRlc2NyaXB0aW9uPiA8L3JkZjpSREY+IDwveDp4bXBtZXRhPiA8P3hwYWNrZXQgZW5kPSJyIj8+Af/+/fz7+vn49/b19PPy8fDv7u3s6+rp6Ofm5eTj4uHg397d3Nva2djX1tXU09LR0M/OzczLysnIx8bFxMPCwcC/vr28u7q5uLe2tbSzsrGwr66trKuqqainpqWko6KhoJ+enZybmpmYl5aVlJOSkZCPjo2Mi4qJiIeGhYSDgoGAf359fHt6eXh3dnV0c3JxcG9ubWxramloZ2ZlZGNiYWBfXl1cW1pZWFdWVVRTUlFQT05NTEtKSUhHRkVEQ0JBQD8+PTw7Ojk4NzY1NDMyMTAvLi0sKyopKCcmJSQjIiEgHx4dHBsaGRgXFhUUExIREA8ODQwLCgkIBwYFBAMCAQAAIfkEAQAAAQAsAAAAAA0ADQAAAhGMj6nL3QAjVHIu6azbvPtWAAA7"); background-repeat: no-repeat; background-position: 0% 50%; display: block;'>
+				StackDB
+			</a>
+		`)
+		el.onclick = () => this.togglePanel()
+		return el
+	}
+
+}
+
+Draw.loadPlugin(function(ui) {
+	new StackDB(ui);
 })
